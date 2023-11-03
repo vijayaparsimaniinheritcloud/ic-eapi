@@ -1,0 +1,12 @@
+#salesforce configuration
+
+sfc:
+ username: "![uee+xdj8uMhQcHxBq3yO4DtFI1noNBU5EeitlBn0CuHbjs0oegFhXA==]"
+ password: "![xRLiW6PxpXWmOewQ5t7CFw==]"
+ token: "![aEUzP8m5ynuEMLoqYuSwZO9y+OCZqJjjhFBkQhhVWqs=]"
+ 
+ #database configuration
+ 
+ db:
+   user: "![6ym+DuMoU3Drfm1YX6up7g==]"
+   password: "![+Ezih20BJPhEYp5Ma1UWfA==]"

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+	<flow name="sfdcNewOpportunityTriggerFlow" doc:id="4ba1e30d-9275-447e-b570-a4d788b66e0d" >
+		<salesforce:new-object-listener doc:name="On New Object" doc:id="6ada60e5-0926-4ea2-99b1-e439e2637f6b" config-ref="Salesforce_Config" objectType="Opportunity">
+			<scheduling-strategy >
+				<fixed-frequency />
+			</scheduling-strategy>
+		</salesforce:new-object-listener>
+		<logger level="INFO" doc:name="Logger" doc:id="aca1d7fc-5cf7-482a-805b-c6bf83d48333" message="#[payload]"/>
+		<error-handler ref="Error_Handler" />
+	</flow>
+	<flow name="sfdcUpdateOpportunityTriggerFlow" doc:id="7e8bc7ed-4339-4ee9-8e7c-2598e9afce48" >
+		<salesforce:modified-object-listener doc:name="On Modified Object" doc:id="633cafb6-25e7-48c9-bc2e-140ae10f7514" config-ref="Salesforce_Config" objectType="Opportunity">
+			<scheduling-strategy >
+				<fixed-frequency />
+			</scheduling-strategy>
+		</salesforce:modified-object-listener>
+		<logger level="INFO" doc:name="Logger" doc:id="5fbb850e-516f-44b2-8e0a-ae2f78cf3f76" message="#[payload]"/>
+		<error-handler ref="Error_Handler" />
+	</flow>
+	<flow name="DBNewOpportunityTriggerFlow" doc:id="2acab403-fbbd-4c7b-8f6a-4ee939a88c4a" >
+		<db:listener doc:name="On Table Row" doc:id="c1718ae1-cbe4-4f84-b597-61af6fda3870" config-ref="Database_Config" table="opportunities" watermarkColumn="Id" idColumn="Id">
+			<scheduling-strategy >
+				<fixed-frequency />
+			</scheduling-strategy>
+		</db:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="50fd60f8-5883-43d5-8ffd-3325e62a9346" message="#[output application/json ---payload]"/>
+		<error-handler ref="Error_Handler" />
+	</flow>
+	<flow name="DBUpdateOpportunityTriggerFlow" doc:id="8b98a5eb-07eb-4b54-8c71-acf6fef9d574" >
+		<scheduler doc:name="Scheduler" doc:id="71a966c6-8b54-45ff-97bb-a166f86d2a7e" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="2" timeUnit="MINUTES"/>
+			</scheduling-strategy>
+		</scheduler>
+		<os:retrieve doc:name="Retrieve" doc:id="41ae40dc-817d-4fd8-8337-df5ea1c17239" key="lastUpdatedDate" target="lastUpdatedDate">
+			<os:default-value ><![CDATA[0000-00-00 00:00:00]]></os:default-value>
+		</os:retrieve>
+		<db:select doc:name="Select" doc:id="bbe43f72-0880-4ab8-9679-aaebdb224fb5" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from freedb_training_ic.opportunities where UpdatedDate > :lastUpdatedDate;]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	lastUpdatedDate: vars.lastUpdatedDate
+}]]]></db:input-parameters>
+		</db:select>
+		<choice doc:name="Choice" doc:id="acdc198d-9d67-411b-8f65-f67763fd55a5" >
+			<when expression="#[not isEmpty(payload)]">
+				<os:store doc:name="Store" doc:id="ef4b8aef-9af3-47ff-9a67-625ae570644f" key="lastUpdatedDate">
+					<os:value ><![CDATA[#[max (payload.*UpdatedDate)]]]></os:value>
+				</os:store>
+				<logger level="INFO" doc:name="Logger" doc:id="64cd2a61-99b8-4c21-b681-7a7207945e8a" message="#[output application/json ---payload]"/>
+			</when>
+			<otherwise >
+				<logger level="INFO" doc:name="Logger" doc:id="29e2eae9-86e4-4509-9c97-b8156563db54" message="no updated Records"/>
+			</otherwise>
+		</choice>
+	</flow>
+</mule>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
+	<salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="a6c85447-9038-463f-95ba-9e72a7501993" >
+		<salesforce:basic-connection username="${secure::sfc.username}" password="${secure::sfc.password}" securityToken="${secure::sfc.token}" />
+	</salesforce:sfdc-config>
+	<configuration-properties doc:name="Configuration properties" doc:id="3a5e0fd7-43ba-443e-9841-5c9b651ba4e5" file="properties\cinfig-dev.yaml" />
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="9257bddb-c08c-42dc-8eb7-9eaa2aeb7de7" file="properties/config-dev-secure.yaml" key="Mulesoft" >
+		<secure-properties:encrypt algorithm="Blowfish" />
+	</secure-properties:config>
+	<configuration doc:name="Configuration" doc:id="5a3d1407-b3ce-43c3-93f0-76de8b472ba9" defaultErrorHandler-ref="Error_Handler" />
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="55241aae-beb2-4143-ab5d-8bc8bfa52202" >
+		<db:my-sql-connection host="sql.freedb.tech" port="3306" user="freedb_vijaya" password="Z%zW@RU@P#a65V%" database="freedb_training_ic"/>
+	</db:config>
+</mule>
